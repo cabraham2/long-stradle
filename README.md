@@ -1,5 +1,5 @@
 # 📊 Options Pricer - Long Straddle
-### Projet de Pricing d'Options | Master 2 Gestion d'actif (G2C)
+### Projet de Pricing d'Options | Master 2 Gestion d'actifs (G2C)
 
 Un système professionnel de pricing d'options avec interface web moderne, développé en Python pour l'analyse de stratégies d'options basées sur le modèle Black-Scholes.
 
@@ -8,7 +8,7 @@ Un système professionnel de pricing d'options avec interface web moderne, déve
 ## 👤 Auteur
 
 **Clément Abraham**
-- 🎓 Master 2 Gestion d'actif (G2C)
+- 🎓 Master 2 Gestion d'actifs (G2C)
 - 💼 [LinkedIn](https://www.linkedin.com/in/clément-abraham-530566164)
 - 🔗 [Projet GitHub](https://github.com/cabraham2/long-stradle)
 

@@ -1,0 +1,156 @@
+{
+  "greeks": {
+    "delta": {
+      "name": "Delta (Δ)",
+      "description": "Mesure la sensibilité du prix de l'option à une variation de 1$ du sous-jacent.",
+      "interpretation": "Un delta de 0.5 signifie que si l'action monte de 1$, l'option gagne environ 0.50$.",
+      "range": "Call: 0 à 1, Put: -1 à 0",
+      "example": "Delta de 0.70 → L'option se comporte comme 70 actions"
+    },
+    "gamma": {
+      "name": "Gamma (Γ)",
+      "description": "Mesure le taux de changement du delta. C'est l'accélération du prix de l'option.",
+      "interpretation": "Un gamma élevé signifie que le delta change rapidement quand le prix bouge.",
+      "range": "Toujours positif pour acheteurs, maximum ATM",
+      "example": "Gamma de 0.05 → Le delta augmente de 0.05 quand l'action monte de 1$"
+    },
+    "vega": {
+      "name": "Vega (ν)",
+      "description": "Mesure la sensibilité du prix de l'option à une variation de 1% de la volatilité implicite.",
+      "interpretation": "Un vega élevé signifie que l'option est très sensible aux changements de volatilité.",
+      "range": "Toujours positif pour acheteurs",
+      "example": "Vega de 0.15 → Si la volatilité passe de 20% à 21%, l'option gagne 0.15$"
+    },
+    "theta": {
+      "name": "Theta (Θ)",
+      "description": "Mesure la perte de valeur temps de l'option par jour (time decay).",
+      "interpretation": "Theta est généralement négatif pour les acheteurs. Chaque jour qui passe, l'option perd de la valeur.",
+      "range": "Négatif pour acheteurs, accélère proche de l'expiration",
+      "example": "Theta de -0.05 → L'option perd 5 cents par jour"
+    },
+    "rho": {
+      "name": "Rho (ρ)",
+      "description": "Mesure la sensibilité du prix de l'option à une variation de 1% du taux d'intérêt sans risque.",
+      "interpretation": "Généralement moins important que les autres Greeks pour les options à court terme.",
+      "range": "Positif pour calls, négatif pour puts",
+      "example": "Rho de 0.10 → Si les taux passent de 5% à 6%, l'option gagne 0.10$"
+    }
+  },
+  "strategies": {
+    "long_straddle": {
+      "name": "Long Straddle",
+      "description": "Achat simultané d'un call et d'un put ATM (At-The-Money) avec même strike et même échéance.",
+      "when_to_use": "Quand vous anticipez un mouvement important du sous-jacent, mais sans savoir la direction.",
+      "max_profit": "Illimité",
+      "max_loss": "Limité au coût total de la stratégie (prime du call + prime du put)",
+      "breakeven": "2 points: Strike - Coût total (downside) et Strike + Coût total (upside)",
+      "risk_profile": "Stratégie à fort effet de levier, nécessite un mouvement significatif pour être profitable",
+      "example": "Action à 100$, vous achetez call 100$ + put 100$ pour 10$ total. Profitable si l'action va sous 90$ ou au-dessus de 110$"
+    },
+    "long_strangle": {
+      "name": "Long Strangle",
+      "description": "Achat d'un call OTM et d'un put OTM avec des strikes différents mais même échéance.",
+      "when_to_use": "Similaire au straddle mais moins cher. Requiert un mouvement encore plus important.",
+      "max_profit": "Illimité",
+      "max_loss": "Limité au coût total (généralement moins cher qu'un straddle)",
+      "breakeven": "2 points: Put strike - Coût total et Call strike + Coût total",
+      "risk_profile": "Moins cher qu'un straddle mais nécessite un mouvement plus important",
+      "example": "Action à 100$, vous achetez call 105$ + put 95$ pour 5$ total. Profitable si l'action va sous 90$ ou au-dessus de 110$"
+    },
+    "iron_condor": {
+      "name": "Iron Condor",
+      "description": "Combinaison d'un bull put spread et d'un bear call spread. Stratégie neutre.",
+      "when_to_use": "Quand vous anticipez que le sous-jacent restera dans une certaine range (faible volatilité).",
+      "max_profit": "Limité au crédit net reçu",
+      "max_loss": "Limité à la largeur du spread le plus large moins le crédit reçu",
+      "breakeven": "2 points: Short put - Crédit net et Short call + Crédit net",
+      "risk_profile": "Haute probabilité de succès mais profits limités. Idéal en marché calme",
+      "example": "Action à 100$, vous vendez put 95$/achetez put 90$ et vendez call 105$/achetez call 110$. Profitable si l'action reste entre 95$ et 105$"
+    }
+  },
+  "terms": {
+    "strike": {
+      "term": "Strike (Prix d'exercice)",
+      "definition": "Le prix auquel l'option peut être exercée. Pour un call, c'est le prix d'achat; pour un put, c'est le prix de vente."
+    },
+    "premium": {
+      "term": "Prime (Premium)",
+      "definition": "Le prix que vous payez pour acheter une option. C'est votre risque maximum en tant qu'acheteur."
+    },
+    "expiration": {
+      "term": "Expiration",
+      "definition": "La date à laquelle l'option expire et devient sans valeur si elle n'est pas exercée."
+    },
+    "itm": {
+      "term": "ITM (In-The-Money)",
+      "definition": "Une option qui a une valeur intrinsèque. Call: prix spot > strike. Put: prix spot < strike."
+    },
+    "atm": {
+      "term": "ATM (At-The-Money)",
+      "definition": "Une option dont le strike est égal ou très proche du prix actuel du sous-jacent."
+    },
+    "otm": {
+      "term": "OTM (Out-of-The-Money)",
+      "definition": "Une option sans valeur intrinsèque. Call: prix spot < strike. Put: prix spot > strike."
+    },
+    "implied_volatility": {
+      "term": "Volatilité Implicite (IV)",
+      "definition": "La volatilité attendue par le marché, reflétée dans le prix des options. Plus l'IV est élevée, plus les options sont chères."
+    },
+    "time_decay": {
+      "term": "Time Decay (Érosion temporelle)",
+      "definition": "La perte de valeur d'une option au fil du temps. Accélère à l'approche de l'expiration."
+    },
+    "intrinsic_value": {
+      "term": "Valeur Intrinsèque",
+      "definition": "La valeur réelle de l'option si elle était exercée maintenant. Call: max(0, spot - strike). Put: max(0, strike - spot)."
+    },
+    "extrinsic_value": {
+      "term": "Valeur Extrinsèque (Valeur Temps)",
+      "definition": "La partie de la prime qui dépasse la valeur intrinsèque. Reflète le potentiel de mouvement futur."
+    },
+    "breakeven": {
+      "term": "Break-Even (Point mort)",
+      "definition": "Le prix du sous-jacent à partir duquel la stratégie devient profitable (P&L = 0)."
+    },
+    "payoff": {
+      "term": "Payoff (Gain brut)",
+      "definition": "La valeur des options à l'expiration, avant déduction du coût initial."
+    },
+    "profit": {
+      "term": "Profit (Gain net)",
+      "definition": "Le payoff moins le coût initial de la stratégie. C'est votre gain ou perte réel."
+    },
+    "spread": {
+      "term": "Spread",
+      "definition": "Une stratégie combinant plusieurs options (achat et vente) pour limiter le risque et le profit potentiel."
+    }
+  },
+  "risk_concepts": {
+    "probability_of_profit": {
+      "name": "Probabilité de Profit",
+      "description": "Estimation statistique (via Monte Carlo) de la probabilité que la stratégie soit rentable à l'expiration.",
+      "interpretation": "Une probabilité de 60% signifie que dans 6 scénarios sur 10, la stratégie serait profitable."
+    },
+    "expected_value": {
+      "name": "Espérance de Gain",
+      "description": "Le profit/perte moyen attendu en prenant en compte toutes les issues possibles et leurs probabilités.",
+      "interpretation": "Une EV positive suggère que la stratégie est mathématiquement avantageuse sur le long terme."
+    },
+    "risk_reward_ratio": {
+      "name": "Ratio Risque/Récompense",
+      "description": "Compare le gain moyen des trades gagnants à la perte moyenne des trades perdants.",
+      "interpretation": "Un ratio de 2:1 signifie que vous gagnez en moyenne 2$ pour chaque 1$ perdu."
+    },
+    "value_at_risk": {
+      "name": "Value at Risk (VaR)",
+      "description": "La perte maximale attendue à un certain niveau de confiance (ex: 95%).",
+      "interpretation": "VaR à 95% de -500$ signifie: avec 95% de confiance, vous ne perdrez pas plus de 500$."
+    },
+    "max_drawdown": {
+      "name": "Drawdown Maximum",
+      "description": "La plus grande perte cumulée depuis un pic de performance dans un backtest.",
+      "interpretation": "Mesure le pire scénario historique. Important pour la gestion du risque."
+    }
+  }
+}

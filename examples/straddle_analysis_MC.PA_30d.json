@@ -1,0 +1,25 @@
+{
+  "strategy": "Long Straddle",
+  "spot_price": 641.2999877929688,
+  "strike": 641.2999877929688,
+  "time_to_expiry_years": 0.0821917808219178,
+  "time_to_expiry_days": 30,
+  "volatility": 0.3243958479162362,
+  "risk_free_rate": 0.03693000078201294,
+  "call_price": 24.73346442485314,
+  "put_price": 22.789850556575118,
+  "total_cost": 47.52331498142826,
+  "max_loss": 47.52331498142826,
+  "max_profit": "Unlimited",
+  "lower_break_even": 593.7766728115405,
+  "upper_break_even": 688.823302774397,
+  "break_even_move_pct": 7.410465598943724,
+  "greeks": {
+    "delta": 0.06307738017711917,
+    "gamma": 0.013336116564340588,
+    "vega": 1.4623641212236536,
+    "theta": -0.7913569254626174,
+    "rho": -0.005812431652462424
+  },
+  "max_profit_numeric": null
+}

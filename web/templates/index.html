@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Pricer Pro - Multi-Stratégies</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-text">Mode Clair</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📊 Options Pricer Pro</h1>
+                <p class="subtitle">Multi-Stratégies • Monte Carlo • Backtesting • Black-Scholes</p>
+            </div>
+            <div class="header-nav">
+                <button onclick="showTab('basic')" class="nav-btn active" id="tab-basic">Analyse de Base</button>
+                <button onclick="showTab('advanced')" class="nav-btn" id="tab-advanced">Analyses Avancées</button>
+                <button onclick="showTab('compare')" class="nav-btn" id="tab-compare">Comparaison</button>
+                <button onclick="showTab('monte-carlo')" class="nav-btn" id="tab-monte-carlo">Monte Carlo</button>
+                <button onclick="showTab('backtest')" class="nav-btn" id="tab-backtest">Backtesting</button>
+                <button onclick="showTab('education')" class="nav-btn" id="tab-education">📚 Éducation</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Input Section -->
+            <div class="card input-section">
+                <h2>🎯 Paramètres du Straddle</h2>
+                
+                <div class="form-group">
+                    <label for="ticker">Ticker du sous-jacent</label>
+                    <div class="input-with-button">
+                        <input type="text" id="ticker" placeholder="Ex: AAPL, MSFT, TSLA..." autocomplete="off">
+                        <button onclick="validateTicker()" class="btn-primary">Valider</button>
+                    </div>
+                    <div id="ticker-feedback"></div>
+                </div>
+
+                <!-- Ticker Info (hidden by default) -->
+                <div id="ticker-info" class="ticker-info" style="display: none;">
+                    <div class="ticker-header">
+                        <h3 id="ticker-name"></h3>
+                        <span id="ticker-symbol" class="ticker-symbol"></span>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Prix actuel</span>
+                            <span id="current-price" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Variation</span>
+                            <span id="day-change" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Capitalisation</span>
+                            <span id="market-cap" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Volume</span>
+                            <span id="volume" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Straddle Parameters -->
+                <div id="straddle-params" style="display: none;">
+                    <div class="form-group">
+                        <label for="days">Jours jusqu'à échéance</label>
+                        <input type="number" id="days" value="30" min="1" max="365">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="strike">Strike (laissez vide pour ATM)</label>
+                        <input type="number" id="strike" placeholder="Optionnel - ATM par défaut" step="0.01">
+                    </div>
+
+                    <button onclick="calculateStraddle()" class="btn-calculate">
+                        🔢 Calculer le Straddle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" style="display: none;">
+                <!-- Summary Card -->
+                <div class="card results-card">
+                    <h2>📊 Résultats du Pricing</h2>
+                    
+                    <div class="pricing-summary">
+                        <div class="price-box">
+                            <span class="price-label">Call Premium</span>
+                            <span id="call-price" class="price-value">-</span>
+                        </div>
+                        <div class="price-box">
+                            <span class="price-label">Put Premium</span>
+                            <span id="put-price" class="price-value">-</span>
+                        </div>
+                        <div class="price-box total">
+                            <span class="price-label">Coût Total</span>
+                            <span id="total-cost" class="price-value">-</span>
+                        </div>
+                    </div>
+
+                    <div class="info-grid risk-metrics">
+                        <div class="info-item">
+                            <span class="info-label">Strike</span>
+                            <span id="strike-value" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Échéance</span>
+                            <span id="expiry-value" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Volatilité</span>
+                            <span id="volatility-value" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Taux sans risque</span>
+                            <span id="rate-value" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk/Reward Card -->
+                <div class="card">
+                    <h3>⚖️ Risque & Rendement</h3>
+                    <div class="risk-reward">
+                        <div class="risk-item">
+                            <span class="risk-label">Perte Maximale</span>
+                            <span id="max-loss" class="risk-value loss">-</span>
+                        </div>
+                        <div class="risk-item">
+                            <span class="risk-label">Profit Maximum</span>
+                            <span id="max-profit" class="risk-value profit">Illimité</span>
+                        </div>
+                        <div class="risk-item">
+                            <span class="risk-label">Break-Even Inférieur</span>
+                            <span id="lower-be" class="risk-value">-</span>
+                        </div>
+                        <div class="risk-item">
+                            <span class="risk-label">Break-Even Supérieur</span>
+                            <span id="upper-be" class="risk-value">-</span>
+                        </div>
+                        <div class="risk-item highlight">
+                            <span class="risk-label">Mouvement Requis</span>
+                            <span id="required-move" class="risk-value">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Greeks Card -->
+                <div class="card">
+                    <h3>🔢 Greeks</h3>
+                    <div class="greeks-grid">
+                        <div class="greek-item">
+                            <span class="greek-name">Delta</span>
+                            <span id="delta" class="greek-value">-</span>
+                            <span class="greek-desc">Sensibilité au prix</span>
+                        </div>
+                        <div class="greek-item">
+                            <span class="greek-name">Gamma</span>
+                            <span id="gamma" class="greek-value positive">-</span>
+                            <span class="greek-desc">Accélération</span>
+                        </div>
+                        <div class="greek-item">
+                            <span class="greek-name">Vega</span>
+                            <span id="vega" class="greek-value positive">-</span>
+                            <span class="greek-desc">Sensibilité volatilité</span>
+                        </div>
+                        <div class="greek-item">
+                            <span class="greek-name">Theta</span>
+                            <span id="theta" class="greek-value negative">-</span>
+                            <span class="greek-desc">Décroissance temporelle</span>
+                        </div>
+                        <div class="greek-item">
+                            <span class="greek-name">Rho</span>
+                            <span id="rho" class="greek-value">-</span>
+                            <span class="greek-desc">Sensibilité taux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Card -->
+                <div class="card">
+                    <h3>📈 Profit & Perte à l'échéance</h3>
+                    <div class="chart-container">
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Analysis Tab -->
+            <div id="advanced-section" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h2>🔬 Analyses Avancées</h2>
+                    
+                    <!-- Volatility Analysis -->
+                    <div class="analysis-section">
+                        <h3>📊 Analyse de Volatilité</h3>
+                        <button onclick="loadVolatilityAnalysis()" class="btn-primary">Charger l'analyse</button>
+                        <div id="vol-analysis-content" style="display: none;">
+                            <div class="chart-container">
+                                <canvas id="volHistoryChart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="volSensitivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sensitivity Analysis -->
+                    <div class="analysis-section">
+                        <h3>🎯 Analyse de Sensibilité (Greeks)</h3>
+                        <button onclick="loadGreeksSensitivity()" class="btn-primary">Charger l'analyse</button>
+                        <div id="greeks-analysis-content" style="display: none;">
+                            <div class="chart-grid">
+                                <div class="chart-container">
+                                    <canvas id="spotSensitivityChart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="timeSensitivityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Heatmap -->
+                    <div class="analysis-section">
+                        <h3>🗺️ Heatmap de Profit</h3>
+                        <button onclick="loadHeatmap()" class="btn-primary">Générer Heatmap</button>
+                        <div id="heatmap-content" style="display: none;">
+                            <div class="chart-container">
+                                <canvas id="heatmapChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare Tab -->
+            <div id="compare-section" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h2>⚖️ Comparateur de Stratégies</h2>
+                    <p class="info-text">Comparez différentes configurations de straddle (échéances et strikes)</p>
+                    
+                    <button onclick="loadComparison()" class="btn-calculate">
+                        🔄 Générer la Comparaison
+                    </button>
+                    
+                    <div id="comparison-results" style="display: none;">
+                        <div class="table-container">
+                            <table class="comparison-table" id="comparisonTable">
+                                <thead>
+                                    <tr>
+                                        <th>Échéance</th>
+                                        <th>Strike</th>
+                                        <th>Coût Total</th>
+                                        <th>Mouvement Requis</th>
+                                        <th>Theta (daily)</th>
+                                        <th>Vega</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparisonBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monte Carlo Section -->
+            <div id="monte-carlo-section" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h2>🎲 Analyse Monte Carlo</h2>
+                    <p class="info-text">Simulation de milliers de scénarios pour estimer la probabilité de profit</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mc-strategy">Stratégie</label>
+                            <select id="mc-strategy" class="input-field">
+                                <option value="straddle">Long Straddle</option>
+                                <option value="strangle">Long Strangle</option>
+                                <option value="iron_condor">Iron Condor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mc-simulations">Nombre de simulations</label>
+                            <input type="number" id="mc-simulations" value="10000" min="1000" max="50000" class="input-field">
+                        </div>
+                    </div>
+                    
+                    <button onclick="runMonteCarloAnalysis()" class="btn-calculate">
+                        🎲 Lancer Simulation Monte Carlo
+                    </button>
+                    
+                    <div id="monte-carlo-results" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Backtest Section -->
+            <div id="backtest-section" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h2>📈 Backtesting Historique</h2>
+                    <p class="info-text">Testez la stratégie sur 1 an de données historiques réelles</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="backtest-strategy">Stratégie</label>
+                            <select id="backtest-strategy" class="input-field">
+                                <option value="straddle">Long Straddle</option>
+                                <option value="strangle">Long Strangle</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="backtest-days">Période de détention (jours)</label>
+                            <input type="number" id="backtest-days" value="30" min="7" max="90" class="input-field">
+                        </div>
+                    </div>
+                    
+                    <button onclick="runBacktest()" class="btn-calculate">
+                        📊 Lancer Backtest (1 an)
+                    </button>
+                    
+                    <div id="backtest-results" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Education Section -->
+            <div id="education-section" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h2>📚 Guide Éducatif</h2>
+                    
+                    <div class="education-grid">
+                        <div class="education-card">
+                            <h3>🔤 Les Greeks</h3>
+                            <div class="greek-item">
+                                <strong class="tooltip">Delta (Δ)
+                                    <span class="tooltiptext">
+                                        <strong>Delta (Δ)</strong>
+                                        Mesure la sensibilité du prix de l'option à une variation de 1$ du sous-jacent.
+                                        <div class="tooltip-detail">
+                                            Range: Call (0 à 1), Put (-1 à 0)<br>
+                                            Ex: Delta 0.5 → +1$ action = +0.50$ option
+                                        </div>
+                                    </span>
+                                </strong>
+                                <p>Sensibilité au prix du sous-jacent</p>
+                            </div>
+                            
+                            <div class="greek-item">
+                                <strong class="tooltip">Gamma (Γ)
+                                    <span class="tooltiptext">
+                                        <strong>Gamma (Γ)</strong>
+                                        Taux de changement du delta. Accélération du prix de l'option.
+                                        <div class="tooltip-detail">
+                                            Maximum ATM, accélère gains et pertes<br>
+                                            Ex: Gamma 0.05 → Delta change de 0.05 par $1
+                                        </div>
+                                    </span>
+                                </strong>
+                                <p>Accélération du delta</p>
+                            </div>
+                            
+                            <div class="greek-item">
+                                <strong class="tooltip">Vega (ν)
+                                    <span class="tooltiptext">
+                                        <strong>Vega (ν)</strong>
+                                        Sensibilité à une variation de 1% de la volatilité implicite.
+                                        <div class="tooltip-detail">
+                                            Toujours positif pour acheteurs<br>
+                                            Ex: Vega 0.15 → +1% vol = +0.15$ option
+                                        </div>
+                                    </span>
+                                </strong>
+                                <p>Sensibilité à la volatilité</p>
+                            </div>
+                            
+                            <div class="greek-item">
+                                <strong class="tooltip">Theta (Θ)
+                                    <span class="tooltiptext">
+                                        <strong>Theta (Θ)</strong>
+                                        Perte de valeur temps par jour (time decay).
+                                        <div class="tooltip-detail">
+                                            Négatif pour acheteurs, accélère proche expiration<br>
+                                            Ex: Theta -0.05 → Option perd 5¢ par jour
+                                        </div>
+                                    </span>
+                                </strong>
+                                <p>Érosion temporelle (time decay)</p>
+                            </div>
+                            
+                            <div class="greek-item">
+                                <strong class="tooltip">Rho (ρ)
+                                    <span class="tooltiptext">
+                                        <strong>Rho (ρ)</strong>
+                                        Sensibilité à une variation de 1% des taux d'intérêt.
+                                        <div class="tooltip-detail">
+                                            Moins important court terme<br>
+                                            Positif calls, négatif puts
+                                        </div>
+                                    </span>
+                                </strong>
+                                <p>Sensibilité aux taux d'intérêt</p>
+                            </div>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>📊 Les Stratégies</h3>
+                            
+                            <div class="strategy-edu">
+                                <h4>Long Straddle</h4>
+                                <p><strong>Quoi:</strong> Achat call + put ATM (même strike)</p>
+                                <p><strong>Quand:</strong> Avant événements importants (earnings, FDA)</p>
+                                <p><strong>Profit:</strong> Illimité si mouvement important</p>
+                                <p><strong>Risque:</strong> Limité au coût (prime payée)</p>
+                            </div>
+                            
+                            <div class="strategy-edu">
+                                <h4>Long Strangle</h4>
+                                <p><strong>Quoi:</strong> Achat call OTM + put OTM</p>
+                                <p><strong>Quand:</strong> Budget limité, fort mouvement attendu</p>
+                                <p><strong>Profit:</strong> Illimité mais mouvement plus grand requis</p>
+                                <p><strong>Risque:</strong> Moins cher qu'un straddle</p>
+                            </div>
+                            
+                            <div class="strategy-edu">
+                                <h4>Iron Condor</h4>
+                                <p><strong>Quoi:</strong> Bull put spread + Bear call spread</p>
+                                <p><strong>Quand:</strong> Marché calme, range-bound</p>
+                                <p><strong>Profit:</strong> Limité au crédit reçu</p>
+                                <p><strong>Risque:</strong> Haute probabilité mais profit limité</p>
+                            </div>
+                        </div>
+                        
+                        <div class="education-card">
+                            <h3>⚠️ Gestion du Risque</h3>
+                            
+                            <div class="risk-item">
+                                <h4>Value at Risk (VaR)</h4>
+                                <p>Perte maximale attendue à un niveau de confiance donné (ex: 95%)</p>
+                            </div>
+                            
+                            <div class="risk-item">
+                                <h4>Probabilité de Profit</h4>
+                                <p>Estimation statistique via Monte Carlo de la chance de gagner</p>
+                            </div>
+                            
+                            <div class="risk-item">
+                                <h4>Règles de Base</h4>
+                                <ul>
+                                    <li>Risquer max 2-5% du capital par trade</li>
+                                    <li>Définir profit target et stop loss</li>
+                                    <li>Ne pas tenir jusqu'à expiration (theta decay)</li>
+                                    <li>Attention volatility crush après événements</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Strategy Comparison -->
+            <div id="strategy-comparison-section" style="display: none; margin-top: 30px;">
+                <div class="card">
+                    <h2>⚖️ Comparaison Multi-Stratégies</h2>
+                    <p class="info-text">Comparez Straddle, Strangle et Iron Condor côte à côte</p>
+                    
+                    <button onclick="compareStrategies()" class="btn-calculate">
+                        🔄 Comparer les 3 Stratégies
+                    </button>
+                    
+                    <div id="strategy-comparison-results" style="margin-top: 20px;"></div>
+                    
+                    <div class="chart-container" style="margin-top: 30px;">
+                        <canvas id="comparison-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export & Actions -->
+            <div id="actions-section" style="display: none;">
+                <div class="card actions-card">
+                    <h3>💾 Export & Actions</h3>
+                    <div class="actions-grid">
+                        <button onclick="exportToPDF()" class="action-btn export-btn">
+                            📕 Exporter PDF
+                        </button>
+                        <button onclick="exportToExcel()" class="action-btn export-btn">
+                            📊 Exporter Excel
+                        </button>
+                        <button onclick="exportToCSV()" class="action-btn export-btn">
+                            📋 Exporter CSV
+                        </button>
+                        <button onclick="exportToJSON()" class="action-btn">
+                            📄 Exporter JSON
+                        </button>
+                        <button onclick="printReport()" class="action-btn">
+                            🖨️ Imprimer
+                        </button>
+                        <button onclick="shareAnalysis()" class="action-btn">
+                            🔗 Partager
+                        </button>
+                        <button onclick="resetAnalysis()" class="action-btn danger">
+                            🔄 Nouvelle Analyse
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Options Pricer © 2025 - Modèle Black-Scholes | 
+               <a href="https://github.com" target="_blank">GitHub</a> | 
+               <a href="#" onclick="showAbout()">À propos</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Chargement des données...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

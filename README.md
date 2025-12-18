@@ -1,4 +1,16 @@
 # 📊 Options Pricer - Long Straddle
+
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Flask](https://img.shields.io/badge/flask-3.0+-green.svg)
+![NumPy](https://img.shields.io/badge/numpy-latest-blue.svg)
+![SciPy](https://img.shields.io/badge/scipy-latest-blue.svg)
+![Chart.js](https://img.shields.io/badge/chartjs-4.0+-yellow.svg)
+![Bootstrap](https://img.shields.io/badge/bootstrap-5.3-purple.svg)
+![License](https://img.shields.io/badge/license-Academic-orange.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Clément_Abraham-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/clément-abraham-530566164)
+
 ### Projet de Pricing d'Options | Master 2 Gestion d'actifs (G2C)
 
 Un système professionnel de pricing d'options avec interface web moderne, développé en Python pour l'analyse de stratégies d'options basées sur le modèle Black-Scholes.
